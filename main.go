@@ -87,7 +87,7 @@ func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTe
 
 	funcs := make([]string, 0)
 	for _, file := range appPkg.Files {
-		// fmt.Printf("parsing %s\n", fset.File(file.Pos()).Name())
+		log.Printf("parsing %s\n", fset.File(file.Pos()).Name())
 		if fset.File(file.Pos()).Name() == outputFile {
 			continue
 		}
@@ -120,7 +120,7 @@ func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTe
 		log.Panic(err)
 	}
 	os.Remove(outputFile)
-	formatted, err := imports.Process(outputFile, out.Bytes(), &imports.Options{})
+	formatted, err := imports.Process(outputFile, out.Bytes(), &imports.Options{Comments: true})
 	if err != nil {
 		log.Panic(err)
 	}
@@ -128,6 +128,7 @@ func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTe
 	if err != nil {
 		log.Panic(err)
 	}
+	log.Printf("Written %s successfully", outputFile)
 }
 
 func main() {
@@ -139,6 +140,15 @@ func main() {
 		Use:   "struct2interface",
 		Short: "Extract an interface from a Golang struct",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			if outputTemplateFile != "" {
+				d, err := ioutil.ReadFile(outputTemplateFile)
+				if err != nil {
+					log.Panic(err)
+				}
+				outputTemplate = string(d)
+			}
+
 			generateInterface(folder, outputFile, pkgName, structName, ifName, outputTemplate)
 		},
 	}
@@ -158,14 +168,6 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	if outputTemplateFile != "" {
-		d, err := ioutil.ReadFile(outputTemplateFile)
-		if err != nil {
-			log.Panic(err)
-		}
-		outputTemplate = string(d)
 	}
 
 }
