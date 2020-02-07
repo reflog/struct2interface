@@ -29,6 +29,12 @@ struct2interface -f "/home/reflog/go/src/github.com/mattermost/mattermost-server
 app/app_iface.go" -p "app" -s "App" -i "AppIface"
 ```
 
+## Other tools
+Before writing this, I tried the following projects, but encountered issues:
+
+[Interfacer](https://github.com/rjeczalik/interfaces) - incredibly slow, dumps odd messages to stderr and writes fully qualified package name instead of localized one, i.e. `*github.com/mattermost/mattermost-server/v5/model.Config` instead of `*model.Config`    
+[Ifacemaker](https://github.com/vburenin/ifacemaker) - created duplicate imports (in my case `"html/template"` and `"text/template"`)  
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
