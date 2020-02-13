@@ -34,6 +34,12 @@ type {{.Name}} interface {
 func functionDef(fun *ast.FuncDecl, fset *token.FileSet) string {
 	name := fun.Name.Name
 	params := make([]string, 0)
+	comments := make([]string, 0)
+	if fun.Doc != nil {
+		for _, comment := range fun.Doc.List {
+			comments = append(comments, comment.Text)
+		}
+	}
 	for _, p := range fun.Type.Params.List {
 		var typeNameBuf bytes.Buffer
 		err := printer.Fprint(&typeNameBuf, fset, p.Type)
@@ -64,13 +70,17 @@ func functionDef(fun *ast.FuncDecl, fset *token.FileSet) string {
 	} else if len(returns) > 1 {
 		returnString = fmt.Sprintf("(%s)", strings.Join(returns, ", "))
 	}
-	return fmt.Sprintf("%s (%s) %v", name, strings.Join(params, ", "), returnString)
+	commentsString := ""
+	if len(comments) > 0 {
+		commentsString = strings.Join(comments, "\n") + "\n"
+	}
+	return fmt.Sprintf("%s%s (%s) %v", commentsString, name, strings.Join(params, ", "), returnString)
 }
 
 func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTemplate string) {
 	fset := token.NewFileSet()
 
-	pkgs, err := parser.ParseDir(fset, folder, nil, parser.AllErrors)
+	pkgs, err := parser.ParseDir(fset, folder, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		log.Fatalf("Unable to parse %s folder", folder)
 	}
