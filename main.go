@@ -132,7 +132,7 @@ func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTe
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Println(out.String())
+
 	os.Remove(outputFile)
 	formatted, err := imports.Process(outputFile, out.Bytes(), &imports.Options{Comments: true})
 	if err != nil {
