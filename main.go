@@ -62,16 +62,17 @@ func functionDef(fun *ast.FuncDecl, fset *token.FileSet) string {
 			if err != nil {
 				log.Fatalf("failed printing %s", err)
 			}
-
-			returns = append(returns, typeNameBuf.String())
+			if len(r.Names) > 0 {
+				for _, k := range r.Names {
+					returns = append(returns, fmt.Sprintf("%s %s", k.Name, typeNameBuf.String()))
+				}
+			} else {
+				returns = append(returns, typeNameBuf.String())
+			}
 		}
 	}
-	returnString := ""
-	if len(returns) == 1 {
-		returnString = returns[0]
-	} else if len(returns) > 1 {
-		returnString = fmt.Sprintf("(%s)", strings.Join(returns, ", "))
-	}
+	returnString := fmt.Sprintf("(%s)", strings.Join(returns, ", "))
+
 	commentsString := ""
 	if len(comments) > 0 {
 		commentsString = strings.Join(comments, "\n") + "\n"
@@ -131,6 +132,7 @@ func generateInterface(folder, outputFile, pkgName, structName, ifName, outputTe
 	if err != nil {
 		log.Panic(err)
 	}
+	fmt.Println(out.String())
 	os.Remove(outputFile)
 	formatted, err := imports.Process(outputFile, out.Bytes(), &imports.Options{Comments: true})
 	if err != nil {
